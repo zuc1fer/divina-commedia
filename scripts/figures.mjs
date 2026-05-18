@@ -32,9 +32,9 @@ const JOBS = [
   ['hell/circle-8-fraud.jpg', 'dem-4.png', COLD],
   ['hell/circle-9-treachery.jpg', 'dem-5.png', COLD],
   ['hell/circle-2-lust.jpg', 'dem-6.png', COLD],
-  // Dürer's rider fills the frame; crop to the horse + knight
-  ['extra/knight-durer.jpg', 'knight.png', KNIGHT, 'knight', [0.20, 0.05, 0.88, 0.97]],
-  ['extra/knight-2.jpg', 'knight-alt.png', KNIGHT, 'knight'],
+  // the faller: a lone figure cut out of the cloud
+  ['extra/faller.jpg', 'knight.png', null, 'silhouette', [0.27, 0.26, 0.75, 0.64]],
+  ['extra/knight-durer.jpg', 'knight-alt.png', KNIGHT, 'knight', [0.20, 0.05, 0.88, 0.97]],
 ];
 
 const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -42,6 +42,7 @@ const smooth = (e0, e1, x) => { const t = clamp((x - e0) / (e1 - e0), 0, 1); ret
 
 for (const [src, out, tint, mode, crop] of JOBS) {
   const knight = mode === 'knight';
+  const silh = mode === 'silhouette';
   let pipeline;
   try {
     let img = sharp(path.join(A, src)).rotate();
@@ -82,7 +83,23 @@ for (const [src, out, tint, mode, crop] of JOBS) {
         smooth(0.02, 0.07, x / w) * smooth(0.02, 0.07, 1 - x / w) *
         smooth(0.02, 0.07, y / h) * smooth(0.06, 0.16, 1 - y / h); // crop the plate caption
 
-      if (knight) {
+      if (silh) {
+        // a lone dark faller pulled out of the bright cloud
+        let s = clamp((96 - lum) / (96 - 20), 0, 1);   // dark = figure
+        s = Math.pow(s, 0.85);
+        // soft figure-shaped feather so cloud haze never leaves a halo
+        const fEdge = 1 - smooth(0.92, 1.22, Math.sqrt((nx / 0.96) ** 2 + (ny / 0.99) ** 2));
+        const fMar =
+          smooth(0.0, 0.05, x / w) * smooth(0.0, 0.05, 1 - x / w) *
+          smooth(0.0, 0.05, y / h) * smooth(0.0, 0.05, 1 - y / h);
+        const a = clamp(s * fEdge * fMar, 0, 1);
+        // near-black body, a hair of cool steel on the soft edges
+        const lo = [10, 12, 17], hi = [40, 47, 60];
+        o[i]     = clamp(hi[0] + (lo[0] - hi[0]) * s, 0, 255);
+        o[i + 1] = clamp(hi[1] + (lo[1] - hi[1]) * s, 0, 255);
+        o[i + 2] = clamp(hi[2] + (lo[2] - hi[2]) * s, 0, 255);
+        o[i + 3] = Math.round(a * 255);
+      } else if (knight) {
         // a solid dark-steel body, modelled darker where the ink is dense
         const aRaw = clamp(ink * 1.75, 0, 1);
         const a = clamp(Math.pow(aRaw, 0.80) * edge * margin, 0, 1);

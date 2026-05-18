@@ -43,10 +43,11 @@ export function initScroll(world) {
     cue?.classList.toggle('gone', p > 0.015);
 
     if (spin) {
-      // tumbles the whole way down, then rights itself and rises in the Ritorno
+      // one slow lazy tumble across the whole descent (360° => seamless loop),
+      // then it swells as the light takes it back in the Ritorno
       const settle = gsap.utils.clamp(0, 1, (p - 0.93) / 0.07);
-      const rot = p * 540 * (1 - settle) + settle * 720;
-      const sc = p < 0.93 ? 1 - p * 0.16 : lerp(0.85, 1.16, settle);
+      const rot = p * 360;
+      const sc = p < 0.93 ? 1 - p * 0.13 : lerp(0.87, 1.14, settle);
       spin.style.transform = `rotate(${rot}deg) scale(${sc})`;
       if (knightImg) {
         const d = darknessAt(p);
