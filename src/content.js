@@ -1,8 +1,8 @@
 // ─────────────────────────────────────────────────────────────────────────────
 //  DIVINA COMMEDIA  ·  the descent and the return, told as one poem
 //  ▼▼▼  EDIT THIS LINE WITH YOUR NAME  ▼▼▼
-export const NAME  = 'YOUR NAME';
-export const EMAIL = 'bgivenb@gmail.com';
+export const NAME  = 'zuc1fer';
+export const EMAIL = 'zuc1fer.business@gmail.com';
 //  ▲▲▲                                  ▲▲▲
 // ─────────────────────────────────────────────────────────────────────────────
 
